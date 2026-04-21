@@ -1,17 +1,39 @@
 import { screen } from '@testing-library/react'
 
 import { renderWithProviders } from '@/app/test/test-utils'
+import { httpRequest } from '@/infrastructure/http/api-client'
 import { AppRoutes } from '@/presentation/routes/AppRoutes'
-import { useAuthStore } from '@/presentation/state/auth-store'
+import { resetAuthStore, useAuthStore } from '@/presentation/state/auth-store'
+
+vi.mock('@/infrastructure/http/api-client', () => ({
+  httpRequest: vi.fn(),
+}))
+
+const mockedHttpRequest = vi.mocked(httpRequest)
+
+const healthResponse = {
+  servicio: 'back_finanzas',
+  estado: 'ok',
+  fecha: '2026-04-20T00:00:00.000Z',
+  dependencias: {
+    baseDatos: 'ok',
+  },
+}
 
 describe('AppRoutes', () => {
-  it('redirecciona a login cuando no hay sesión y se visita /app', async () => {
+  beforeEach(() => {
+    resetAuthStore()
+    mockedHttpRequest.mockReset()
+    mockedHttpRequest.mockResolvedValue(healthResponse)
+  })
+
+  it('redirecciona a login cuando no hay sesion y se visita /app', async () => {
     renderWithProviders(<AppRoutes />, { route: '/app' })
 
     expect(await screen.findByRole('heading', { name: /iniciar sesion/i })).toBeInTheDocument()
   })
 
-  it('redirecciona de / a /app cuando hay sesión', async () => {
+  it('redirecciona de / a /app cuando hay sesion', async () => {
     useAuthStore.getState().setSession({
       user: {
         id: 'u-1',

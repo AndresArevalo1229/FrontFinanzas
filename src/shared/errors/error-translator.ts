@@ -7,6 +7,7 @@ const backendCodeMap: Record<string, string> = {
   USUARIO_NO_ENCONTRADO: 'No se encontro el usuario autenticado.',
   WORKSPACE_NO_SELECCIONADO: 'Selecciona un workspace para continuar.',
   WORKSPACE_INVALIDO: 'El workspace enviado no es valido.',
+  SIN_CONEXION_BACKEND: 'No pudimos conectar con el backend. Intenta de nuevo.',
 }
 
 export const translateApiError = (error: unknown): string => {
