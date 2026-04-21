@@ -21,6 +21,36 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 type UiStatus = 'idle' | 'loading' | 'error' | 'success'
+type IntroPhase = 'splash' | 'revealing' | 'ready'
+
+const IS_TEST_ENV = import.meta.env.MODE === 'test'
+
+const SPLASH_DURATION_MS = IS_TEST_ENV ? 0 : 1200
+const REVEAL_DURATION_MS = IS_TEST_ENV ? 0 : 400
+
+export const LOGIN_INTRO_SESSION_KEY = 'mis-finanzas-login-intro-seen'
+
+const isReducedMotionEnabled = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+const resolveInitialIntroPhase = (): IntroPhase => {
+  if (typeof window === 'undefined') {
+    return 'ready'
+  }
+
+  if (isReducedMotionEnabled()) {
+    return 'ready'
+  }
+
+  return window.sessionStorage.getItem(LOGIN_INTRO_SESSION_KEY) === 'true'
+    ? 'ready'
+    : 'splash'
+}
 
 export const LoginPage = () => {
   const navigate = useNavigate()
@@ -36,6 +66,9 @@ export const LoginPage = () => {
 
   const [uiStatus, setUiStatus] = useState<UiStatus>('idle')
   const [uiMessage, setUiMessage] = useState('')
+
+  const [introPhase, setIntroPhase] = useState<IntroPhase>(resolveInitialIntroPhase)
+  const hasSeenIntroInSession = introPhase === 'ready'
 
   const {
     register,
@@ -99,6 +132,29 @@ export const LoginPage = () => {
     void verifyBackendConnection()
   }, [verifyBackendConnection])
 
+  useEffect(() => {
+    if (introPhase !== 'splash') {
+      return
+    }
+
+    const splashTimeout = window.setTimeout(() => {
+      setIntroPhase('revealing')
+
+      const revealTimeout = window.setTimeout(() => {
+        window.sessionStorage.setItem(LOGIN_INTRO_SESSION_KEY, 'true')
+        setIntroPhase('ready')
+      }, REVEAL_DURATION_MS)
+
+      return () => {
+        window.clearTimeout(revealTimeout)
+      }
+    }, SPLASH_DURATION_MS)
+
+    return () => {
+      window.clearTimeout(splashTimeout)
+    }
+  }, [introPhase])
+
   const onSubmit = handleSubmit(async (values) => {
     if (!backendReady) {
       setUiStatus('error')
@@ -136,17 +192,42 @@ export const LoginPage = () => {
   })
 
   const isLoading = uiStatus === 'loading' || isSubmitting
+  const showSplash = introPhase === 'splash' || introPhase === 'revealing'
 
   return (
     <main className="relative isolate min-h-screen overflow-hidden bg-app-gradient px-4 py-8 sm:px-6 lg:px-8">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-midnight-500/30 blur-3xl" />
-        <div className="absolute -right-20 bottom-0 h-96 w-96 rounded-full bg-rosy-400/30 blur-3xl" />
-        <div className="absolute left-1/2 top-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-moss-500/25 blur-3xl" />
+        <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-midnight-500/30 blur-3xl login-glow-float" />
+        <div className="absolute -right-20 bottom-0 h-96 w-96 rounded-full bg-rosy-400/30 blur-3xl login-glow-float-delay" />
+        <div className="absolute left-1/2 top-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-moss-500/25 blur-3xl login-glow-float-soft" />
       </div>
 
+      {showSplash ? (
+        <section
+          data-testid="login-splash"
+          className={`relative z-20 mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl items-center justify-center ${
+            introPhase === 'splash' ? 'login-splash-fade-in' : 'login-splash-fade-out'
+          }`}
+          aria-live="polite"
+        >
+          <div className="rounded-[2rem] border border-moss-300/70 bg-beige-100/75 px-10 py-12 text-center shadow-[0_35px_100px_-35px_rgba(10,51,35,0.6)] backdrop-blur-xl">
+            <p className="text-[11px] uppercase tracking-[0.28em] text-midnight-700">Bienvenido</p>
+            <h1 className="mt-4 text-4xl font-black tracking-tight text-forest-900 sm:text-5xl">
+              Mis Finanzas
+            </h1>
+            <p className="mt-3 text-sm text-forest-800">
+              Control inteligente para tu dinero personal y en pareja.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
       <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl items-center justify-center">
-        <Card className="w-full max-w-md rounded-[2rem] border-moss-300/80 bg-beige-100/80 p-8 shadow-[0_30px_80px_-30px_rgba(10,51,35,0.55)] backdrop-blur-xl">
+        <Card
+          className={`w-full max-w-md rounded-[2rem] border-moss-300/80 bg-beige-100/80 p-8 shadow-[0_30px_80px_-30px_rgba(10,51,35,0.55)] backdrop-blur-xl ${
+            hasSeenIntroInSession ? 'login-card-reveal' : ''
+          }`}
+        >
           <p className="text-[11px] uppercase tracking-[0.26em] text-midnight-700">Mis Finanzas</p>
           <h1 className="mt-3 text-3xl font-black text-forest-900">Iniciar sesion</h1>
           <p className="mt-2 text-sm text-forest-800">

@@ -5,7 +5,10 @@ import { Route, Routes } from 'react-router-dom'
 import { renderWithProviders } from '@/app/test/test-utils'
 import { httpRequest } from '@/infrastructure/http/api-client'
 import { AppHomePage } from '@/presentation/pages/app/AppHomePage'
-import { LoginPage } from '@/presentation/pages/auth/LoginPage'
+import {
+  LOGIN_INTRO_SESSION_KEY,
+  LoginPage,
+} from '@/presentation/pages/auth/LoginPage'
 import { resetAuthStore, useAuthStore } from '@/presentation/state/auth-store'
 import { ApiError } from '@/shared/errors/api-error'
 
@@ -38,17 +41,41 @@ describe('LoginPage', () => {
   beforeEach(() => {
     resetAuthStore()
     mockedHttpRequest.mockReset()
+    window.sessionStorage.clear()
   })
 
-  it('renderiza login limpio sin contenido instruccional', async () => {
+  it('primera carga sin session key muestra splash y luego formulario', async () => {
     mockedHttpRequest.mockResolvedValueOnce(healthOk)
 
     renderLogin()
 
+    expect(screen.getByTestId('login-splash')).toBeInTheDocument()
+
     expect(await screen.findByRole('heading', { name: /iniciar sesion/i })).toBeInTheDocument()
-    expect(screen.queryByText(/fase 1 guiada/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/paso 1/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/depuracion/i)).not.toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('login-splash')).not.toBeInTheDocument()
+    })
+  })
+
+  it('si ya existe session key, no muestra splash y renderiza login directo', async () => {
+    mockedHttpRequest.mockResolvedValueOnce(healthOk)
+    window.sessionStorage.setItem(LOGIN_INTRO_SESSION_KEY, 'true')
+
+    renderLogin()
+
+    expect(screen.queryByTestId('login-splash')).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /iniciar sesion/i })).toBeInTheDocument()
+  })
+
+  it('al completar intro, guarda session key', async () => {
+    mockedHttpRequest.mockResolvedValueOnce(healthOk)
+
+    renderLogin()
+
+    await waitFor(() => {
+      expect(window.sessionStorage.getItem(LOGIN_INTRO_SESSION_KEY)).toBe('true')
+    })
   })
 
   it('muestra aviso compacto de conexion y permite reintentar', async () => {
@@ -119,6 +146,7 @@ describe('LoginPage', () => {
         },
       ])
 
+    window.sessionStorage.setItem(LOGIN_INTRO_SESSION_KEY, 'true')
     renderLogin()
 
     await waitFor(() => {
@@ -147,6 +175,7 @@ describe('LoginPage', () => {
         }),
       )
 
+    window.sessionStorage.setItem(LOGIN_INTRO_SESSION_KEY, 'true')
     renderLogin()
 
     await waitFor(() => {
