@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
+import loginJardinImage from '@/assets/images/login-jardin.jpg'
 import { HttpAuthRepository } from '@/infrastructure/auth/http-auth.repository'
 import { HttpHealthRepository } from '@/infrastructure/health/http-health.repository'
 import { HttpWorkspaceRepository } from '@/infrastructure/workspace/http-workspace.repository'
@@ -197,6 +198,11 @@ export const LoginPage = () => {
   return (
     <main className="relative isolate min-h-screen overflow-hidden bg-app-gradient px-4 py-8 sm:px-6 lg:px-8">
       <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-35"
+          style={{ backgroundImage: `url(${loginJardinImage})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-beige-100/55 via-beige-100/20 to-forest-900/25" />
         <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-midnight-500/30 blur-3xl login-glow-float" />
         <div className="absolute -right-20 bottom-0 h-96 w-96 rounded-full bg-rosy-400/30 blur-3xl login-glow-float-delay" />
         <div className="absolute left-1/2 top-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-moss-500/25 blur-3xl login-glow-float-soft" />
