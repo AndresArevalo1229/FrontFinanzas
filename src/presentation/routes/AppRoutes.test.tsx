@@ -8,7 +8,7 @@ describe('AppRoutes', () => {
   it('redirecciona a login cuando no hay sesión y se visita /app', async () => {
     renderWithProviders(<AppRoutes />, { route: '/app' })
 
-    expect(await screen.findByRole('heading', { name: /iniciar sesión/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /iniciar sesion/i })).toBeInTheDocument()
   })
 
   it('redirecciona de / a /app cuando hay sesión', async () => {

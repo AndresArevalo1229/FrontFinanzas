@@ -22,6 +22,15 @@ export const mapAxiosError = (error: unknown): ApiError => {
       })
     }
 
+    if (!error.response) {
+      return new ApiError({
+        code: 'SIN_CONEXION_BACKEND',
+        message:
+          'No se pudo conectar al backend. Verifica que este levantado en el puerto configurado.',
+        details: null,
+      })
+    }
+
     return new ApiError({
       code: 'HTTP_ERROR',
       message: error.message,
@@ -32,7 +41,7 @@ export const mapAxiosError = (error: unknown): ApiError => {
 
   return new ApiError({
     code: 'ERROR_DESCONOCIDO',
-    message: 'Ocurrió un error inesperado',
+    message: 'Ocurrio un error inesperado',
     details: error,
   })
 }

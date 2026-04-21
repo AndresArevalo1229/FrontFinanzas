@@ -1,25 +1,32 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-sans: 'Nunito Sans', 'Avenir Next', 'Segoe UI', sans-serif;
 
-  --color-brand-50: #f6f9ff;
-  --color-brand-100: #dbe8ff;
-  --color-brand-200: #bfd6ff;
-  --color-brand-300: #95bcff;
-  --color-brand-400: #699fff;
-  --color-brand-500: #3f82ff;
-  --color-brand-600: #1f66e5;
-  --color-brand-700: #1b4faf;
-  --color-brand-800: #173c83;
+  --color-forest-900: #0a3323;
+  --color-forest-800: #144431;
+  --color-forest-700: #1e5540;
 
-  --color-surface-100: #f8fafc;
-  --color-surface-200: #eef2f7;
-  --color-surface-300: #d8e1ee;
+  --color-moss-700: #667745;
+  --color-moss-500: #839958;
+  --color-moss-400: #94aa68;
+  --color-moss-300: #b6c38e;
+
+  --color-beige-400: #d8d4b8;
+  --color-beige-200: #f1edd4;
+  --color-beige-100: #f7f4d5;
+
+  --color-rosy-700: #9e6a63;
+  --color-rosy-600: #b57c73;
+  --color-rosy-400: #d3968c;
+
+  --color-midnight-700: #105666;
+  --color-midnight-600: #1f6676;
+  --color-midnight-500: #2f7888;
 }
 
 :root {
-  color: #0f172a;
+  color: var(--color-forest-900);
   font-family: var(--font-sans);
 }
 
@@ -27,9 +34,9 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 10% 10%, #dbe8ff 0%, transparent 32%),
-    radial-gradient(circle at 85% 15%, #b8f0e8 0%, transparent 28%),
-    linear-gradient(165deg, #f8fafc 0%, #eef2f7 44%, #e4ecf8 100%);
+    radial-gradient(circle at 12% 8%, rgb(131 153 88 / 38%) 0%, transparent 34%),
+    radial-gradient(circle at 88% 18%, rgb(16 86 102 / 34%) 0%, transparent 30%),
+    linear-gradient(165deg, #f7f4d5 0%, #efe9c7 42%, #e1d9b9 100%);
 }
 
 #root {
@@ -38,7 +45,7 @@ body {
 
 .bg-app-gradient {
   background:
-    radial-gradient(circle at 10% 10%, #dbe8ff 0%, transparent 32%),
-    radial-gradient(circle at 85% 15%, #b8f0e8 0%, transparent 28%),
-    linear-gradient(165deg, #f8fafc 0%, #eef2f7 44%, #e4ecf8 100%);
+    radial-gradient(circle at 12% 8%, rgb(131 153 88 / 38%) 0%, transparent 34%),
+    radial-gradient(circle at 88% 18%, rgb(16 86 102 / 34%) 0%, transparent 30%),
+    linear-gradient(165deg, #f7f4d5 0%, #efe9c7 42%, #e1d9b9 100%);
 }
